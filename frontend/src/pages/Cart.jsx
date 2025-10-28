@@ -30,16 +30,31 @@ export default function Cart({ removeFromCartUI }) {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-6 text-center">Your Cart 🛒</h1>
+    <div className="p-6 max-w-3xl mx-auto py-20">
+      <h1 className="text-2xl font-semibold mb-6 text-center ">Your Cart 🛒</h1>
 
       {/* Empty State */}
       {cart.items.length === 0 && (
-        <div className="text-center py-14 text-gray-500">
-          <p className="text-lg mb-3">Your cart is empty</p>
+        <div className="flex flex-col items-center justify-center py-20 bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-inner border border-gray-200">
+          <div className="bg-white p-6 rounded-full shadow-sm border border-gray-100 mb-5">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png"
+              alt="Empty Cart"
+              className="w-16 h-16 opacity-80"
+            />
+          </div>
+
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+            Your cart is empty
+          </h2>
+          <p className="text-gray-500 mb-6 text-sm max-w-sm text-center">
+            Looks like you haven’t added anything to your cart yet. Start
+            exploring our products and add your favorites!
+          </p>
+
           <Link
             to="/"
-            className="inline-block bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+            className="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-lg font-medium hover:bg-gray-800 transition active:scale-95"
           >
             Continue Shopping
           </Link>

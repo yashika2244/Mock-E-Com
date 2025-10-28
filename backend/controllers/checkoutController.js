@@ -2,7 +2,7 @@ import Cart from "../models/cartModel.js";
 
 export const checkout = async (req, res) => {
   try {
-    const { name, cartItems } = req.body;
+    const { name, email, cartItems } = req.body;
 
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
@@ -12,16 +12,17 @@ export const checkout = async (req, res) => {
 
     const receipt = {
       name,
-      items: cartItems.map(i => ({
+      email,
+      items: cartItems.map((i) => ({
         name: i.name,
         qty: i.quantity,
-        price: i.price
+        price: i.price,
       })),
       total,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    // ✅ Clear the cart in DB
+    // Clear the cart in DB
     const cart = await Cart.findOne();
     if (cart) {
       cart.items = [];
@@ -29,12 +30,10 @@ export const checkout = async (req, res) => {
     }
 
     res.json(receipt);
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 export const clearCart = async (req, res) => {
   try {

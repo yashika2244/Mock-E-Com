@@ -4,3 +4,18 @@
   --brand: #4f46e5;
 }
 html,body,#root { height: 100%; }
+
+/* ✅ Hide scrollbar but keep scroll functionality */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* optional */
+}
+
+html {
+  scrollbar-width: none; /* for Firefox */
+}
+
+body {
+  overflow-y: scroll; /* keeps layout stable even when hidden */
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+}

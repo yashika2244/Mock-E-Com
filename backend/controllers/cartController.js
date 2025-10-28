@@ -23,9 +23,7 @@ export const addToCart = async (req, res) => {
     let cart = await Cart.findOne();
     if (!cart) cart = await Cart.create({ items: [] });
 
-    const item = cart.items.find(
-      (i) => i.productId.toString() === productId
-    );
+    const item = cart.items.find((i) => i.productId.toString() === productId);
 
     if (item) item.quantity += qty;
     else cart.items.push({ productId, quantity: qty });
@@ -43,9 +41,7 @@ export const removeFromCart = async (req, res) => {
     const cart = await Cart.findOne();
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-    cart.items = cart.items.filter(
-      (item) => item.productId.toString() !== id
-    );
+    cart.items = cart.items.filter((item) => item.productId.toString() !== id);
 
     await cart.save();
     res.json(cart);
@@ -57,16 +53,15 @@ export const removeFromCart = async (req, res) => {
 export const updateCartQty = async (req, res) => {
   try {
     const { id } = req.params; // productId
-    const { qty } = req.body;  // new quantity
+    const { qty } = req.body; // new quantity
 
     let cart = await Cart.findOne();
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-    const item = cart.items.find(
-      (i) => i.productId.toString() === id
-    );
+    const item = cart.items.find((i) => i.productId.toString() === id);
 
-    if (!item) return res.status(404).json({ message: "Item not found in cart" });
+    if (!item)
+      return res.status(404).json({ message: "Item not found in cart" });
 
     item.quantity = qty;
 
