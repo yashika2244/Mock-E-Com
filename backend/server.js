@@ -12,20 +12,29 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    origin: [
+      "http://localhost:5173",
+      "https://mock-e-com.vercel.app",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 app.use(express.json());
+
 
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
 
+
 app.get("/", (req, res) => res.send("API is running..."));
+
 
 const PORT = process.env.PORT || 5000;
 
