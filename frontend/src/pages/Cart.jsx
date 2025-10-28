@@ -26,31 +26,39 @@ export default function Cart({ removeFromCartUI }) {
   }, []);
 
   const removeItem = async (id, quantity) => {
-     setLoading(true);
+    setCart((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.productId._id !== id),
+    }));
+
+    if (removeFromCartUI) removeFromCartUI(quantity);
+    toast.success("Removed from cart 🗑️");
+
     try {
       await api.delete(`/cart/${id}`);
-      await fetchCart();
-      if (removeFromCartUI) removeFromCartUI(quantity);
-      toast.success("Removed from cart 🗑️");
     } catch {
-      toast.error("Failed to remove item");
-    }finally {
-    setLoading(false);
-  }
+      toast.error("Failed to remove item (try again)");
+      fetchCart();
+    }
   };
 
   const updateQty = async (productId, newQty) => {
     if (newQty < 1) return;
- 
+
+    setCart((prev) => ({
+      ...prev,
+      items: prev.items.map((item) =>
+        item.productId._id === productId ? { ...item, quantity: newQty } : item
+      ),
+    }));
+
     try {
       await api.put(`/cart/${productId}`, { qty: newQty });
-      await fetchCart();
       toast.success("Quantity updated");
-    } catch {
+    } catch (err) {
       toast.error("Failed to update quantity");
-    }finally {
-    
-  }
+      fetchCart();
+    }
   };
 
   // Calculate totals
@@ -65,10 +73,7 @@ export default function Cart({ removeFromCartUI }) {
       products.find((p) => p._id === item.productId._id) || item.productId;
     return (
       sum +
-      ((product?.price || 0) *
-        (product?.discount || 0) *
-        item.quantity) /
-        100
+      ((product?.price || 0) * (product?.discount || 0) * item.quantity) / 100
     );
   }, 0);
 
@@ -76,29 +81,30 @@ export default function Cart({ removeFromCartUI }) {
 
   return (
     <div className="min-h-screen bg-gray-50 py-20 px-4">
- <div className="relative md:mx-10 bg-white shadow-xl flex flex-col md:flex-row overflow-y-auto max-h-[85vh] rounded-2xl">
+      <div className="relative md:mx-10 bg-white shadow-xl flex flex-col md:flex-row overflow-y-auto max-h-[85vh] rounded-2xl">
+        {/* LEFT SIDE */}
+        {loading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-20">
+            <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-600 text-sm font-medium">
+              Loading your cart...
+            </p>
+          </div>
+        )}
 
         {/* LEFT SIDE */}
-  {loading && (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-20">
-      <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p className="text-gray-600 text-sm font-medium">Loading your cart...</p>
-    </div>
-  )}
-
-  {/* LEFT SIDE */}
-  <div
-    className={`w-full p-8 flex flex-col ${
-      cart.items.length > 0
-        ? "md:w-2/3 border-r border-gray-200"
-        : "items-center justify-center"
-    }`}
-  >
-    <div className="flex items-center justify-between mb-6 shrink-0 w-full">
-      <h1 className="text-2xl font-semibold text-gray-900">
-        Shopping Cart
-      </h1>
-    </div>
+        <div
+          className={`w-full p-8 flex flex-col ${
+            cart.items.length > 0
+              ? "md:w-2/3 border-r border-gray-200"
+              : "items-center justify-center"
+          }`}
+        >
+          <div className="flex items-center justify-between mb-6 shrink-0 w-full">
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Shopping Cart
+            </h1>
+          </div>
 
           {/* Loading Spinner */}
           {loading ? (
@@ -143,9 +149,7 @@ export default function Cart({ removeFromCartUI }) {
                   >
                     <div className="flex items-center gap-4">
                       <img
-                        src={
-                          product.image || "https://via.placeholder.com/80"
-                        }
+                        src={product.image || "https://via.placeholder.com/80"}
                         alt={product.name}
                         className="w-20 h-20 object-contain rounded-xl bg-white shadow-sm border border-gray-100"
                       />
@@ -191,9 +195,7 @@ export default function Cart({ removeFromCartUI }) {
                         </p>
                       )}
                       <button
-                        onClick={() =>
-                          removeItem(product._id, item.quantity)
-                        }
+                        onClick={() => removeItem(product._id, item.quantity)}
                         className="text-red-500 hover:text-red-600 text-sm mt-1 flex items-center gap-1 justify-end"
                       >
                         <Trash className="w-4 h-4" /> Remove
@@ -239,7 +241,6 @@ export default function Cart({ removeFromCartUI }) {
             </Link>
           </div>
         )}
-       
       </div>
     </div>
   );

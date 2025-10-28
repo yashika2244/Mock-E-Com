@@ -21,7 +21,8 @@ export default function Products({ addToCartUI }) {
   }, []);
 
   return (
-  <section className="relative h-[100vh] bg-gradient-to-b from-indigo-50 via-white to-indigo-100 py-20 px-6 overflow-hidden">
+ <section className="relative min-h-screen bg-gradient-to-b from-indigo-50 via-white to-indigo-100 py-20 px-6 overflow-hidden">
+
 
       {/* Decorative blurred accents */}
       <div className="absolute top-0 left-0 w-72 h-72 bg-indigo-300 rounded-full blur-3xl opacity-30 -z-10" />

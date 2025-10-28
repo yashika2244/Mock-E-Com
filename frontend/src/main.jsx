@@ -7,7 +7,7 @@ import { ProductsProvider } from "./context/ProductsContext.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ProductsProvider>
-      <App />◘
+      <App />
     </ProductsProvider>
   </StrictMode>
 );
