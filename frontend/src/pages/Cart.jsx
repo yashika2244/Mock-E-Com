@@ -41,7 +41,7 @@ export default function Cart({ removeFromCartUI }) {
 
   const updateQty = async (productId, newQty) => {
     if (newQty < 1) return;
-      setLoading(true);
+ 
     try {
       await api.put(`/cart/${productId}`, { qty: newQty });
       await fetchCart();
@@ -49,7 +49,7 @@ export default function Cart({ removeFromCartUI }) {
     } catch {
       toast.error("Failed to update quantity");
     }finally {
-    setLoading(false); 
+    
   }
   };
 
