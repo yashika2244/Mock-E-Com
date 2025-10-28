@@ -6,7 +6,7 @@ export default function Navbar({ cartCount }) {
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
-      <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
+      <div className="md:px-20 px-10 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link
           to="/"
