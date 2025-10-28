@@ -11,6 +11,8 @@ export default function Checkout({ setCartCount }) {
   const [email, setEmail] = useState("");
   const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const navigate = useNavigate();
 
   const { products, setProducts, loading: productsLoading } = useProducts();
@@ -24,9 +26,28 @@ export default function Checkout({ setCartCount }) {
   }, []);
 
   const checkout = async () => {
-    if (!name.trim() || !email.trim()) return toast.error("Enter name & email");
-    if (cart.items.length === 0) return toast.error("Cart is empty");
-    if (!/\S+@\S+\.\S+/.test(email)) return toast.error("Enter a valid email");
+    let valid = true;
+    setNameError("");
+    setEmailError("");
+
+    if (!name.trim()) {
+      setNameError("Please enter your full name");
+      valid = false;
+    }
+    if (!email.trim()) {
+      setEmailError("Please enter your email address");
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError("Please enter a valid email address");
+      valid = false;
+    }
+
+    if (!valid) return; // stop checkout if invalid
+
+    if (cart.items.length === 0) {
+      toast.error("Cart is empty");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -55,7 +76,7 @@ export default function Checkout({ setCartCount }) {
       setName("");
       setEmail("");
       setReceipt(res.data);
-      toast.success("Order placed successfully ✅");
+      toast.success("Order placed successfully ");
     } catch (err) {
       toast.error("Checkout failed");
       console.error(err);
@@ -91,23 +112,38 @@ export default function Checkout({ setCartCount }) {
                   Full Name
                 </label>
                 <input
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                  className={`w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent transition
+      ${nameError ? "border-red-500 ring-1 ring-red-300" : "border-gray-300"}`}
                   placeholder="John Doe"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setNameError("");
+                  }}
                 />
+                {nameError && (
+                  <p className="text-red-500 text-sm mt-1">{nameError}</p>
+                )}
               </div>
+
               <div>
                 <label className="block text-sm font-semibold text-gray-600 mb-1">
                   Email Address
                 </label>
                 <input
                   type="email"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                  className={`w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-gray-900 focus:border-transparent transition
+      ${emailError ? "border-red-500 ring-1 ring-red-300" : "border-gray-300"}`}
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError(""); // clear error on typing
+                  }}
                 />
+                {emailError && (
+                  <p className="text-red-500 text-sm mt-1">{emailError}</p>
+                )}
               </div>
             </div>
 
