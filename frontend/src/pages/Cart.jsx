@@ -76,26 +76,29 @@ export default function Cart({ removeFromCartUI }) {
 
   return (
     <div className="min-h-screen bg-gray-50 py-20 px-4">
-      <div className="md:mx-10 bg-white shadow-xl flex flex-col md:flex-row overflow-y-auto max-h-[85vh] rounded-2xl">
+ <div className="relative md:mx-10 bg-white shadow-xl flex flex-col md:flex-row overflow-y-auto max-h-[85vh] rounded-2xl">
+
         {/* LEFT SIDE */}
-        <div
-          className={`w-full p-8 flex flex-col ${
-            cart.items.length > 0
-              ? "md:w-2/3 border-r border-gray-200"
-              : "items-center justify-center"
-          }`}
-        >
-          {/* Heading */}
-          <div className="flex items-center justify-between mb-6 shrink-0 w-full">
-            <h1 className="text-2xl font-semibold text-gray-900">
-              Shopping Cart
-            </h1>
-            {!loading && (
-              <p className="text-sm text-gray-500">
-                {cart.items.length} items
-              </p>
-            )}
-          </div>
+  {loading && (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-20">
+      <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p className="text-gray-600 text-sm font-medium">Loading your cart...</p>
+    </div>
+  )}
+
+  {/* LEFT SIDE */}
+  <div
+    className={`w-full p-8 flex flex-col ${
+      cart.items.length > 0
+        ? "md:w-2/3 border-r border-gray-200"
+        : "items-center justify-center"
+    }`}
+  >
+    <div className="flex items-center justify-between mb-6 shrink-0 w-full">
+      <h1 className="text-2xl font-semibold text-gray-900">
+        Shopping Cart
+      </h1>
+    </div>
 
           {/* Loading Spinner */}
           {loading ? (
@@ -236,6 +239,7 @@ export default function Cart({ removeFromCartUI }) {
             </Link>
           </div>
         )}
+       
       </div>
     </div>
   );

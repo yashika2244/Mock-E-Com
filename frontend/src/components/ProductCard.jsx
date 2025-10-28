@@ -1,17 +1,23 @@
+import { useState } from "react";
 import { api } from "../api";
 import toast from "react-hot-toast";
 import { Heart } from "lucide-react";
-import { useProducts } from "../context/ProductsContext"; 
+import { useProducts } from "../context/ProductsContext";
 
 export default function ProductCard({ product, addToCartUI }) {
-  const { products, setProducts } = useProducts(); 
+  const { products, setProducts } = useProducts();
+  const [loading, setLoading] = useState(false);
+
   const addToCart = async () => {
+    setLoading(true);
     try {
       await api.post("/cart", { productId: product._id, qty: 1 });
-      if (addToCartUI) addToCartUI(); 
+      if (addToCartUI) addToCartUI();
       toast.success("Added to cart", { icon: "✅" });
     } catch {
       toast.error("Something went wrong");
+    } finally {
+      setLoading(false); // Re-enable button
     }
   };
 
@@ -66,11 +72,43 @@ export default function ProductCard({ product, addToCartUI }) {
           )}
         </div>
 
+        {/* Add to Cart Button */}
         <button
           onClick={addToCart}
-          className="w-full bg-black cursor-pointer text-white py-2.5 text-sm tracking-wide rounded-lg font-medium hover:bg-gray-800 active:scale-95 transition-all"
+          disabled={loading}
+          className={`w-full flex items-center justify-center bg-black text-white py-2.5 text-sm tracking-wide rounded-lg font-medium transition-all ${
+            loading
+              ? "opacity-70 cursor-not-allowed"
+              : "hover:bg-gray-800 active:scale-95 cursor-pointer"
+          }`}
         >
-          Add to Cart
+          {loading ? (
+            <>
+              <svg
+                className="animate-spin h-4 w-4 mr-2 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 000 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                ></path>
+              </svg>
+              Adding...
+            </>
+          ) : (
+            "Add to Cart"
+          )}
         </button>
       </div>
     </div>
