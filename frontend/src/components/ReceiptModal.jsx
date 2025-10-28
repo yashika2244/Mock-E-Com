@@ -127,12 +127,7 @@ function ReceiptModal({ receipt, onClose }) {
             </span>
           </div>
 
-          {/* Savings */}
-          {savings > 0 && (
-            <p className="text-sm text-green-600 font-medium text-center mb-3">
-              You saved ₹{savings.toFixed(2)} today 🎉
-            </p>
-          )}
+      
 
           {/* Timestamp */}
           <p className="text-xs text-gray-500 text-center">

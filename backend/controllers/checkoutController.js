@@ -15,14 +15,16 @@ export const checkout = async (req, res) => {
       email,
       items: cartItems.map((i) => ({
         name: i.name,
-        qty: i.quantity,
+        quantity: i.quantity,
         price: i.price,
+        originalPrice: i.originalPrice,
+        discount: i.discount,
       })),
       total,
       timestamp: new Date(),
     };
 
-    // Clear the cart in DB
+   
     const cart = await Cart.findOne();
     if (cart) {
       cart.items = [];
