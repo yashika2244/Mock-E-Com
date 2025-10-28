@@ -3,11 +3,12 @@ import { api } from "../api";
 import { Link } from "react-router-dom";
 import { Trash, Plus, Minus } from "lucide-react";
 import toast from "react-hot-toast";
-import { useProducts } from "../context/ProductsContext"; 
+import { useProducts } from "../context/ProductsContext";
 
 export default function Cart({ removeFromCartUI }) {
   const [cart, setCart] = useState({ items: [], total: 0 });
-  const { products } = useProducts(); 
+  const [loading, setLoading] = useState(true);
+  const { products } = useProducts();
 
   const fetchCart = async () => {
     try {
@@ -15,6 +16,8 @@ export default function Cart({ removeFromCartUI }) {
       setCart(res.data);
     } catch (err) {
       toast.error("Failed to fetch cart");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -23,6 +26,7 @@ export default function Cart({ removeFromCartUI }) {
   }, []);
 
   const removeItem = async (id, quantity) => {
+     setLoading(true);
     try {
       await api.delete(`/cart/${id}`);
       await fetchCart();
@@ -30,31 +34,42 @@ export default function Cart({ removeFromCartUI }) {
       toast.success("Removed from cart 🗑️");
     } catch {
       toast.error("Failed to remove item");
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   const updateQty = async (productId, newQty) => {
+    if (newQty < 1) return;
+      setLoading(true);
     try {
       await api.put(`/cart/${productId}`, { qty: newQty });
       await fetchCart();
       toast.success("Quantity updated");
     } catch {
       toast.error("Failed to update quantity");
-    }
+    }finally {
+    setLoading(false); 
+  }
   };
 
-  // Calculate totals safely
+  // Calculate totals
   const totalWithoutDiscount = cart.items.reduce((sum, item) => {
-    const product = products.find((p) => p._id === item.productId._id) || item.productId;
-    const price = product?.price || 0;
-    return sum + price * item.quantity;
+    const product =
+      products.find((p) => p._id === item.productId._id) || item.productId;
+    return sum + (product?.price || 0) * item.quantity;
   }, 0);
 
   const totalDiscount = cart.items.reduce((sum, item) => {
-    const product = products.find((p) => p._id === item.productId._id) || item.productId;
-    const price = product?.price || 0;
-    const discount = product?.discount || 0;
-    return sum + (price * discount * item.quantity) / 100;
+    const product =
+      products.find((p) => p._id === item.productId._id) || item.productId;
+    return (
+      sum +
+      ((product?.price || 0) *
+        (product?.discount || 0) *
+        item.quantity) /
+        100
+    );
   }, 0);
 
   const totalWithDiscount = totalWithoutDiscount - totalDiscount;
@@ -62,8 +77,7 @@ export default function Cart({ removeFromCartUI }) {
   return (
     <div className="min-h-screen bg-gray-50 py-20 px-4">
       <div className="md:mx-10 bg-white shadow-xl flex flex-col md:flex-row overflow-y-auto max-h-[85vh] rounded-2xl">
-
-        {/* LEFT SIDE — CART ITEMS */}
+        {/* LEFT SIDE */}
         <div
           className={`w-full p-8 flex flex-col ${
             cart.items.length > 0
@@ -71,14 +85,25 @@ export default function Cart({ removeFromCartUI }) {
               : "items-center justify-center"
           }`}
         >
+          {/* Heading */}
           <div className="flex items-center justify-between mb-6 shrink-0 w-full">
             <h1 className="text-2xl font-semibold text-gray-900">
               Shopping Cart
             </h1>
-            <p className="text-sm text-gray-500">{cart.items.length} items</p>
+            {!loading && (
+              <p className="text-sm text-gray-500">
+                {cart.items.length} items
+              </p>
+            )}
           </div>
 
-          {cart.items.length === 0 ? (
+          {/* Loading Spinner */}
+          {loading ? (
+            <div className="w-full flex flex-col items-center justify-center py-32">
+              <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-500 text-sm">Loading your cart...</p>
+            </div>
+          ) : cart.items.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center flex-1">
               <img
                 src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png"
@@ -163,7 +188,9 @@ export default function Cart({ removeFromCartUI }) {
                         </p>
                       )}
                       <button
-                        onClick={() => removeItem(product._id, item.quantity)}
+                        onClick={() =>
+                          removeItem(product._id, item.quantity)
+                        }
                         className="text-red-500 hover:text-red-600 text-sm mt-1 flex items-center gap-1 justify-end"
                       >
                         <Trash className="w-4 h-4" /> Remove
@@ -177,7 +204,7 @@ export default function Cart({ removeFromCartUI }) {
         </div>
 
         {/* RIGHT SIDE — SUMMARY */}
-        {cart.items.length > 0 && (
+        {!loading && cart.items.length > 0 && (
           <div className="w-full md:w-1/3 bg-gray-50 p-8 flex flex-col justify-between">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-5">
